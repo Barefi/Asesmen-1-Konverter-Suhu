@@ -1,5 +1,6 @@
 package com.barefi0012.miniproject1.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -11,6 +12,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
@@ -54,7 +57,17 @@ fun ScreenContent(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Implementasi Gambar sesuai Modul 03 Halaman 10
+        Image(
+            painter = painterResource(id = R.drawable.img_header), // Pastikan file ada di res/drawable
+            contentDescription = stringResource(R.string.menu_about), // Menggunakan referensi string yang ada
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .size(150.dp)
+                .padding(bottom = 8.dp)
+        )
 
+        // Input Suhu
         OutlinedTextField(
             value = temperatur,
             onValueChange = {
@@ -79,7 +92,7 @@ fun ScreenContent(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth()
         )
 
-
+        // Radio Button Vertikal Sederhana
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -101,6 +114,7 @@ fun ScreenContent(modifier: Modifier = Modifier) {
 
         Button(
             onClick = {
+                // Validasi input tidak boleh kosong
                 temperaturError = (temperatur == "" || temperatur.toDoubleOrNull() == null)
                 if (temperaturError) return@Button
 
@@ -113,6 +127,7 @@ fun ScreenContent(modifier: Modifier = Modifier) {
             Text(text = stringResource(R.string.btn_convert))
         }
 
+        // Tampilan Hasil
         if (hasilKonversi.isNotEmpty()) {
             HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), thickness = 1.dp)
             Text(text = "Hasil Konversi:", style = MaterialTheme.typography.titleMedium)
@@ -142,7 +157,11 @@ fun UnitOption(label: String, isSelected: Boolean, modifier: Modifier) {
 
 @Composable
 fun IconPicker(isError: Boolean) {
-    if (isError) Icon(Icons.Filled.Warning, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+    if (isError) Icon(
+        imageVector = Icons.Filled.Warning,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.error
+    )
 }
 
 @Composable
@@ -160,7 +179,6 @@ private fun hitungSuhu(nilai: Double, dari: String): String {
     val f = (c * 9 / 5) + 32
     val k = c + 273.15
     val r = c * 4 / 5
-
 
     return "Celcius: %.2f\nFahrenheit: %.2f\nKelvin: %.2f\nReamur: %.2f".format(c, f, k, r)
 }
