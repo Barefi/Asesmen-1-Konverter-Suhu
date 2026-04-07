@@ -1,3 +1,7 @@
 <resources>
-    <string name="app_name">Mini project 1</string>
+    <string name="app_name">Konverter Suhu</string>
+    <string name="label_input">Masukkan Suhu</string>
+    <string name="btn_convert">Konversi</string>
+    <string name="btn_share">Bagikan Hasil</string>
+    <string name="menu_about">Tentang Aplikasi</string>
 </resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Konverter Suhu</string>
+    <string name="label_input">Enter Temperature</string>
+    <string name="btn_convert">Convert</string>
+    <string name="btn_share">Share Result</string>
+    <string name="menu_about">About App</string>
+</resources>
