@@ -1,4 +1,4 @@
-package com.barefi0012.miniproject1.ui
+package com.barefi0012.miniproject1.ui.theme.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -7,9 +7,11 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -19,19 +21,25 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.barefi0012.miniproject1.R
+import com.barefi0012.miniproject1.navigation.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavHostController) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.app_name)) },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                )
+                actions = {
+                    IconButton(onClick = { navController.navigate(Screen.About.route) }) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = stringResource(id = R.string.menu_about)
+                        )
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -41,13 +49,12 @@ fun MainScreen() {
 
 @Composable
 fun ScreenContent(modifier: Modifier = Modifier) {
-    var temperatur by remember { mutableStateOf("") }
-    var temperaturError by remember { mutableStateOf(false) }
+    var temperatur by rememberSaveable { mutableStateOf("") }
+    var temperaturError by rememberSaveable { mutableStateOf(false) }
 
     val radioOptions = listOf("Celcius", "Fahrenheit", "Kelvin", "Reamur")
-    var selectedUnit by remember { mutableStateOf(radioOptions[0]) }
-
-    var hasilKonversi by remember { mutableStateOf("") }
+    var selectedUnit by rememberSaveable { mutableStateOf(radioOptions[0]) }
+    var hasilKonversi by rememberSaveable { mutableStateOf("") }
 
     Column(
         modifier = modifier
@@ -57,26 +64,21 @@ fun ScreenContent(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Implementasi Gambar sesuai Modul 03 Halaman 10
         Image(
-            painter = painterResource(id = R.drawable.img_header), // Pastikan file ada di res/drawable
-            contentDescription = stringResource(R.string.menu_about), // Menggunakan referensi string yang ada
+            painter = painterResource(id = R.drawable.img_header),
+            contentDescription = stringResource(id = R.string.menu_about),
             contentScale = ContentScale.Fit,
-            modifier = Modifier
-                .size(150.dp)
-                .padding(bottom = 8.dp)
+            modifier = Modifier.size(150.dp)
         )
 
-        // Input Suhu
         OutlinedTextField(
             value = temperatur,
             onValueChange = {
                 temperatur = it
                 temperaturError = false
             },
-            label = { Text(text = stringResource(R.string.label_input)) },
-            trailingIcon = { IconPicker(temperaturError) },
-            supportingText = { ErrorHint(temperaturError) },
+            label = { Text(text = stringResource(id = R.string.label_input)) },
+            trailingIcon = { if (temperaturError) Icon(Icons.Filled.Warning, null) },
             isError = temperaturError,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
@@ -86,21 +88,10 @@ fun ScreenContent(modifier: Modifier = Modifier) {
             modifier = Modifier.fillMaxWidth()
         )
 
-        Text(
-            text = "Pilih Satuan Asal:",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.fillMaxWidth()
-        )
 
-        // Radio Button Vertikal Sederhana
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             radioOptions.forEach { text ->
-                UnitOption(
-                    label = text,
-                    isSelected = (selectedUnit == text),
+                Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .selectable(
@@ -108,66 +99,36 @@ fun ScreenContent(modifier: Modifier = Modifier) {
                             onClick = { selectedUnit = text },
                             role = Role.RadioButton
                         )
-                )
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(selected = (selectedUnit == text), onClick = null)
+                    Text(text = text, modifier = Modifier.padding(start = 12.dp))
+                }
             }
         }
 
         Button(
             onClick = {
-                // Validasi input tidak boleh kosong
-                temperaturError = (temperatur == "" || temperatur.toDoubleOrNull() == null)
-                if (temperaturError) return@Button
-
-                val nilai = temperatur.toDoubleOrNull() ?: 0.0
-                hasilKonversi = hitungSuhu(nilai, selectedUnit)
+                val inputDouble = temperatur.toDoubleOrNull()
+                if (inputDouble == null) {
+                    temperaturError = true
+                } else {
+                    hasilKonversi = hitungSuhu(inputDouble, selectedUnit)
+                }
             },
-            modifier = Modifier.padding(top = 8.dp),
-            contentPadding = PaddingValues(horizontal = 32.dp, vertical = 16.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = stringResource(R.string.btn_convert))
+            Text(text = stringResource(id = R.string.btn_convert))
         }
 
-        // Tampilan Hasil
         if (hasilKonversi.isNotEmpty()) {
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp), thickness = 1.dp)
-            Text(text = "Hasil Konversi:", style = MaterialTheme.typography.titleMedium)
-            Text(
-                text = hasilKonversi,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(top = 8.dp)
-            )
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            Text(text = hasilKonversi, style = MaterialTheme.typography.bodyLarge)
         }
     }
 }
 
-@Composable
-fun UnitOption(label: String, isSelected: Boolean, modifier: Modifier) {
-    Row(
-        modifier = modifier.padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        RadioButton(selected = isSelected, onClick = null)
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(start = 12.dp)
-        )
-    }
-}
-
-@Composable
-fun IconPicker(isError: Boolean) {
-    if (isError) Icon(
-        imageVector = Icons.Filled.Warning,
-        contentDescription = null,
-        tint = MaterialTheme.colorScheme.error
-    )
-}
-
-@Composable
-fun ErrorHint(isError: Boolean) {
-    if (isError) Text(text = "Input tidak valid!", color = MaterialTheme.colorScheme.error)
-}
 
 private fun hitungSuhu(nilai: Double, dari: String): String {
     val c = when (dari) {
@@ -176,9 +137,5 @@ private fun hitungSuhu(nilai: Double, dari: String): String {
         "Reamur" -> nilai * 5 / 4
         else -> nilai
     }
-    val f = (c * 9 / 5) + 32
-    val k = c + 273.15
-    val r = c * 4 / 5
-
-    return "Celcius: %.2f\nFahrenheit: %.2f\nKelvin: %.2f\nReamur: %.2f".format(c, f, k, r)
+    return "C: %.2f | F: %.2f | K: %.2f | R: %.2f".format(c, (c * 9 / 5) + 32, c + 273.15, c * 4 / 5)
 }

@@ -1,3 +1,4 @@
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -5,11 +6,7 @@ plugins {
 
 android {
     namespace = "com.barefi0012.miniproject1"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.barefi0012.miniproject1"
@@ -48,6 +45,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.compose.material.icons.extended)
+
     implementation(libs.androidx.navigation.compose)
 
     testImplementation(libs.junit)
